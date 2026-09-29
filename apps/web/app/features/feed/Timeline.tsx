@@ -10,8 +10,7 @@ import { IconChevronDown } from "../../components/icons";
 import { RingMark } from "../../components/Logo";
 import { EmptyState } from "../../components/ui/Page";
 import { beijingDate, beijingTime, beijingWeekday } from "../../lib/format";
-import { markRead, setHotScoreVisible, useHotScoreVisible, useReadSet } from "../../lib/local-state";
-import { ScoreVisibilityToggle } from "../../components/ui/Score";
+import { markRead, useReadSet } from "../../lib/local-state";
 import { isHydrated, isReload, markHydrated, readSnapshot, restoreAnchor, saveSnapshot } from "./restore";
 
 const AUTO_BATCHES = 3;
@@ -113,7 +112,6 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   const location = useLocation();
   const navigation = useNavigation();
   const readSet = useReadSet();
-  const showScore = useHotScoreVisible();
   const historyKey = location.key;
 
   // Back navigation (client side): restore synchronously from the snapshot. A full reload restores
@@ -272,9 +270,6 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   let order = 0;
   return (
     <div className="relative">
-      <div className="flex justify-end py-2">
-        <ScoreVisibilityToggle checked={showScore} onChange={setHotScoreVisible} />
-      </div>
       {days.length === 0 && (
         <div className="lg:card">
           <EmptyState title="这个筛选下还没有精选内容">换个类别看看，或者去全部动态里找找。</EmptyState>
@@ -294,7 +289,7 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
                     const delay = fresh ? Math.min(order++, 10) * 40 : 0;
                     return (
                       <TimelineSlot key={c.key} dataKey={c.key} at={c.anchorAt} fresh={fresh} delay={delay}>
-                        <FeedItem item={c.item} group={c.group} filters={filters} read={readSet.has(c.item.id)} onOpen={markRead} showScore={showScore} />
+                        <FeedItem item={c.item} group={c.group} filters={filters} read={readSet.has(c.item.id)} onOpen={markRead} />
                       </TimelineSlot>
                     );
                   })}

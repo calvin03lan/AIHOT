@@ -5,14 +5,12 @@ import { Link } from "react-router";
 import type { FeedItemSummary } from "@aihot/contracts/site";
 import { IconChevronRight } from "../../components/icons";
 import { beijingDate } from "../../lib/format";
-import { markRead, setHotScoreVisible, useHotScoreVisible, useReadSet } from "../../lib/local-state";
+import { markRead, useReadSet } from "../../lib/local-state";
 import { DayHeader, TimelineSlot } from "./Timeline";
 import { FeedItem } from "./FeedItem";
-import { ScoreVisibilityToggle } from "../../components/ui/Score";
 
 export function DayList({ items, todayCount = null, showTags = true, animate = false }: { items: FeedItemSummary[]; todayCount?: number | null; showTags?: boolean; animate?: boolean }) {
   const readSet = useReadSet();
-  const showScore = useHotScoreVisible();
   const today = beijingDate(Date.now());
   const days = useMemo(() => {
     const out: Array<{ day: string; items: FeedItemSummary[] }> = [];
@@ -27,16 +25,13 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
   let order = 0;
   return (
     <div>
-      <div className="flex justify-end py-2">
-        <ScoreVisibilityToggle checked={showScore} onChange={setHotScoreVisible} />
-      </div>
       {days.map(({ day, items: list }) => (
         <section key={day} aria-label={day}>
           <DayHeader day={day} today={today} count={day === today ? todayCount : null} />
           <ol className="lg:pt-1">
             {list.map((it) => (
               <TimelineSlot key={it.id} at={it.timelineAt} fresh={animate} delay={animate ? Math.min(order++, 12) * 25 : 0}>
-                <FeedItem item={it} read={readSet.has(it.id)} onOpen={markRead} showTags={showTags} showScore={showScore} />
+                <FeedItem item={it} read={readSet.has(it.id)} onOpen={markRead} showTags={showTags} />
               </TimelineSlot>
             ))}
           </ol>
@@ -78,3 +73,4 @@ export function Pagination({ page, pageCount, href }: { page: number; pageCount:
     </nav>
   );
 }
+
