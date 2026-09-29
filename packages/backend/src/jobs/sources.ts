@@ -3,7 +3,6 @@ import type { PgBoss } from "pg-boss";
 import { collectSource, collectXShard } from "../sources/collect.ts";
 import { checkMpAccount } from "../sources/mp.ts";
 import { ensureQueue, QUEUES } from "./queue.ts";
-import { registerExtractionJobs } from "./content.ts";
 
 export async function registerSourceJobs(boss: PgBoss) {
   await ensureQueue(QUEUES.fetchSource);
@@ -23,5 +22,4 @@ export async function registerSourceJobs(boss: PgBoss) {
     if (!job) return;
     return checkMpAccount(job.data.sourceId, job.data.reason ?? "schedule");
   });
-  await registerExtractionJobs(boss);
 }

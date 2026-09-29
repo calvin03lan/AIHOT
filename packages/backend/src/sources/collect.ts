@@ -1,5 +1,6 @@
 // Collection run for one source: fetch listing → filter → store material → enqueue processing.
 // A failed fetch never advances the success cursor; the source's health reflects consecutive failures.
+import { normalizeMncCandidate } from "./mnc.ts";
 import { sql } from "../db.ts";
 import { identityKeyFor, upsertMaterial } from "../content/materials.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
@@ -122,10 +123,16 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       else delete nextCursor.xBacklog;
       detail = { pages: x.pages, truncated: x.truncated, backlog: x.backlog.length, backlogPages: x.backlogPages, dropped: x.dropped };
     }
+    if (source.config._mnc && candidates.length === 0 && detail?.notModified !== true) throw new FetchError("MNC: no items matched");
     found = candidates.length;
     candidates = candidates.filter((c) => allowed(c.url, source)).map((c) => rewriteUrl(c, source)).filter((c) => !noiseFiltered(c, source));
     if (source.config.sortByPublishedAt) candidates.sort((a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0));
 
+    if (source.config._mnc) {
+      const cutoff = Date.now() - 30 * DAY_MS;
+      candidates = candidates.filter(c => !c.publishedAt || c.publishedAt.getTime() >= cutoff);
+      detail = { httpStatus: 200, ...detail };
+    }
     // First import of a new source: bounded, and archived by source time (never "today", never pushed).
     const backfillLimit = Number(source.config._aihot?.initialBackfillLimit ?? 30);
     const backfillMonths = Number(source.config._aihot?.initialBackfillMonths ?? 12);
@@ -179,6 +186,7 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       }
     }
 
+    if (source.config._mnc) candidates = candidates.map((c) => normalizeMncCandidate(c, source));
     ({ created, revised } = await store(sourceId, candidates, firstImport ? "first-import" : null));
 
     if (firstImport) nextCursor.initializedAt = new Date().toISOString();
@@ -198,11 +206,11 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       UPDATE sources SET last_fetch_at = now(),
         fail_count = CASE WHEN ${budget} THEN fail_count ELSE fail_count + 1 END,
         last_error = ${message},
-        health = CASE WHEN ${budget} THEN health WHEN fail_count + 1 >= 5 THEN 'failing' ELSE 'degraded' END,
-        next_fetch_at = now() + make_interval(mins => CASE WHEN ${budget} THEN 15 ELSE LEAST(interval_minutes * (fail_count + 2), 360) END),
+        health = CASE WHEN ${budget} THEN health WHEN fail_count + 1 >= CASE WHEN config ? '_mnc' THEN 2 ELSE 5 END THEN 'failing' ELSE 'degraded' END,
+        next_fetch_at = now() + make_interval(mins => CASE WHEN ${budget} THEN 15 ELSE LEAST(interval_minutes * power(2, LEAST(fail_count + 1, 8))::int, 360) END),
         updated_at = now()
       WHERE id = ${sourceId}`;
-    await sql`UPDATE fetch_runs SET status = 'failed', finished_at = now(), found_count = ${found}, new_count = ${created}, error = ${message} WHERE id = ${run!.id}`;
+    await sql`UPDATE fetch_runs SET status = 'failed', finished_at = now(), found_count = ${found}, new_count = ${created}, error = ${message}, detail = ${sql.json({ httpStatus: error instanceof FetchError ? error.status : null })} WHERE id = ${run!.id}`;
     return { sourceId, status: "failed", found, created, revised, error: message };
   }
 }
@@ -347,6 +355,7 @@ export async function adaptIntervals(): Promise<{ updated: number }> {
     FROM sources s WHERE s.enabled AND s.kind IN ('rss', 'web_list', 'json_list', 'x_search')`;
   let updated = 0;
   for (const r of rows) {
+    if (r.config._aihot?.fixedIntervalMinutes) continue;
     const perDay = Number(r.per_day);
     // Editorial sites and feeds are looked at hourly at least (they cost nothing);
     // editorial X and listings read through Jina stop at two hours (paid per call, within their budgets);

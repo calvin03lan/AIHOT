@@ -101,6 +101,16 @@ export async function collectFindings(now = Date.now()): Promise<Finding[]> {
     });
   }
 
+  const brokenMnc = await sql<{ id:string; name:string; fail_count:number; last_error:string|null }[]>`
+    SELECT id, name, fail_count, last_error FROM sources
+    WHERE enabled AND config ? '_mnc' AND fail_count >= 2`;
+  for (const source of brokenMnc) out.push({
+    key: `mnc.source.${source.id}`, level: "now", title: `${source.name} 连续抓取失败`,
+    impact: "该公司新披露可能漏收；零条解析结果不能当作没有新闻",
+    heals: "按退避时间重试，恢复后自动清除告警", action: "检查官方页面、解析规则与网络",
+    detail: `连续 ${source.fail_count} 次；${source.last_error ?? "未知错误"}`,
+  });
+
   // Reset monitor: posts are recognized in order, so one that keeps failing holds up every later one.
   const [stuck] = await sql<{ url: string; collected_at: Date; failures: { count: number; error?: string } | null }[]>`
     SELECT p.url, p.collected_at, s.value AS failures FROM monitor_posts p LEFT JOIN monitor_state s ON s.key = 'failures:' || p.id

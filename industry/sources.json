@@ -1,388 +1,420 @@
 {
-  "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里增删改。字段说明见 docs/customize.md。",
+  "$comment": "首批 MNC 官方源。AZ/BMS/PFE 当前自动抓取受限，保留配置及显式失败告警；浏览器能查看不等于自动采集验收通过。详见 docs/mnc-sources.md。",
   "sources": [
     {
-      "id": "rss-openai-news",
-      "name": "OpenAI News",
+      "id": "mnc-abbvie",
+      "name": "AbbVie · 官方新闻",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://openai.com/news/rss.xml",
+        "feedUrl": "https://news.abbvie.com/index.php?s=2429&pagetemplate=rss",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "AbbVie",
+          "ticker": "ABBV",
+          "category": "press_release"
         }
       },
       "tier": "T1",
       "first_party": true,
-      "owner_entity_id": "openai",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-google-deepmind",
-      "name": "Google DeepMind",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://deepmind.google/blog/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-google-research",
-      "name": "Google Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://research.google/blog/rss/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-hugging-face",
-      "name": "Hugging Face Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "hugging-face",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "开源"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-microsoft-research",
-      "name": "Microsoft Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "microsoft",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-nvidia-blog",
-      "name": "NVIDIA Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "nvidia",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-aws-ml",
-      "name": "AWS Machine Learning Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "教程"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-github-ai",
-      "name": "GitHub Blog · AI & ML",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mistral",
-      "name": "Mistral AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://mistral.ai/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-bair",
-      "name": "Berkeley AI Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-verge-ai",
-      "name": "The Verge · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "owner_entity_id": "abbvie",
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "官方",
+        "MNC",
+        "ABBV"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-techcrunch-ai",
-      "name": "TechCrunch · AI",
+      "id": "mnc-lilly",
+      "name": "Eli Lilly · 官方新闻",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "feedUrl": "https://lilly.mediaroom.com/index.php?s=9042&pagetemplate=rss",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Eli Lilly",
+          "ticker": "LLY",
+          "category": "press_release"
         }
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "lilly",
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "官方",
+        "MNC",
+        "LLY"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-ars-technica-ai",
-      "name": "Ars Technica · AI",
+      "id": "mnc-gsk",
+      "name": "GSK · 官方新闻",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
+        "feedUrl": "https://www.gsk.com/en-gb/media/rss/",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "GSK",
+          "ticker": "GSK",
+          "category": "press_release"
         }
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "gsk",
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "官方",
+        "MNC",
+        "GSK"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-mit-tech-review-ai",
-      "name": "MIT Technology Review · AI",
-      "kind": "rss",
+      "id": "mnc-merck",
+      "name": "Merck · 官方新闻",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+        "url": "https://www.merck.com/media/news/",
+        "itemSelector": ".d8-result-item",
+        "linkSelector": ".d8-result-item-headline a",
+        "titleSelector": ".d8-result-item-headline",
+        "publishedAtSelector": ".d8-result-item-date",
+        "allowUrlPrefixes": [
+          "https://www.merck.com/news/"
+        ],
         "_aihot": {
-          "initialBackfillLimit": 8
-        }
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Merck",
+          "ticker": "MRK",
+          "category": "press_release"
+        },
+        "publishedAtUtcOffset": "+00:00"
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-decoder",
-      "name": "The Decoder",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "merck",
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "官方",
+        "MNC",
+        "MRK"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-simon-willison",
-      "name": "Simon Willison",
+      "id": "mnc-roche",
+      "name": "Roche · 官方新闻",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
+        "feedUrl": "https://www.roche.com/med_news_xml.xml",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 15
+        },
+        "_mnc": {
+          "company": "Roche",
+          "ticker": "RHHBY",
+          "category": "press_release"
         }
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "roche",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 15,
       "tags": [
-        "个人"
+        "官方",
+        "MNC",
+        "RHHBY"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-import-ai",
-      "name": "Import AI",
-      "kind": "rss",
+      "id": "mnc-novartis",
+      "name": "Novartis · 官方新闻",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://importai.substack.com/feed",
+        "url": "https://www.novartis.com/news",
+        "itemSelector": "#tab-press-releases .each-item",
+        "titleSelector": "h3",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.novartis.com/news/media-releases/"
+        ],
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Novartis",
+          "ticker": "NVS",
+          "category": "press_release"
         }
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "novartis",
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 60,
       "tags": [
-        "个人",
-        "周刊"
+        "官方",
+        "MNC",
+        "NVS"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
     },
     {
-      "id": "rss-latent-space",
-      "name": "Latent Space",
-      "kind": "rss",
+      "id": "mnc-novartis-adhoc",
+      "name": "Novartis · ad hoc",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://www.latent.space/feed",
+        "url": "https://www.novartis.com/news",
+        "itemSelector": "#tab-ad-hoc-releases .each-item",
+        "titleSelector": "h3",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.novartis.com/news/media-releases/"
+        ],
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 15
+        },
+        "_mnc": {
+          "company": "Novartis",
+          "ticker": "NVS",
+          "category": "ad_hoc"
         }
       },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": null,
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "novartis",
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 15,
       "tags": [
-        "个人"
+        "官方",
+        "MNC",
+        "NVS"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "mnc-astrazeneca",
+      "name": "AstraZeneca · 官方新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.astrazeneca.com/media-centre.html",
+        "itemSelector": "li.dynamic-news-container__item",
+        "allowUrlPrefixes": [
+          "https://www.astrazeneca.com/media-centre/press-releases/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "AstraZeneca",
+          "ticker": "AZN",
+          "category": "press_release"
+        },
+        "linkSelector": "a",
+        "titleSelector": ".dynamic-news-container__item-title",
+        "publishedAtSelector": "time"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "astrazeneca",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "官方",
+        "MNC",
+        "AZN"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "mnc-sanofi",
+      "name": "Sanofi · 官方新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.sanofi.com/en/media-room/press-releases",
+        "itemSelector": "a[id^=\"prlist-\"][title]",
+        "titleAttribute": "title",
+        "publishedAtRegex": "/press-releases/\\d{4}/(\\d{4}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00",
+        "allowUrlPrefixes": [
+          "https://www.sanofi.com/en/media-room/press-releases/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Sanofi",
+          "ticker": "SNY",
+          "category": "press_release"
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "sanofi",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "官方",
+        "MNC",
+        "SNY"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "mnc-bms",
+      "name": "Bristol Myers Squibb · 官方新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://news.bms.com/news/default.aspx",
+        "itemSelector": "h5 a",
+        "allowUrlPrefixes": [
+          "https://news.bms.com/news/corporate-financial/",
+          "https://news.bms.com/news/details/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Bristol Myers Squibb",
+          "ticker": "BMY",
+          "category": "press_release"
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "bms",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "官方",
+        "MNC",
+        "BMY"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "mnc-pfizer",
+      "name": "Pfizer · 官方新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.pfizer.com/newsroom/press-releases",
+        "itemSelector": "h5 a",
+        "allowUrlPrefixes": [
+          "https://www.pfizer.com/news/press-release/press-release-detail/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Pfizer",
+          "ticker": "PFE",
+          "category": "press_release"
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "pfizer",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "官方",
+        "MNC",
+        "PFE"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "mnc-jnj",
+      "name": "Johnson & Johnson · 官方新闻",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.jnj.com/rss-feed/all",
+        "_aihot": {
+          "initialBackfillLimit": 200,
+          "initialBackfillMonths": 1,
+          "fixedIntervalMinutes": 60
+        },
+        "_mnc": {
+          "company": "Johnson & Johnson",
+          "ticker": "JNJ",
+          "category": "press_release"
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "jnj",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "官方",
+        "MNC",
+        "JNJ"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
     }
   ]
 }

@@ -5,6 +5,7 @@
   "exports": {
     "./pages/*": "./pages/*",
     "./brand/*": "./brand/*",
-    "./*": "./*.ts"
+    "./*": "./*.ts",
+    "./topics.json": "./topics.json"
   }
 }

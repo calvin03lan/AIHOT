@@ -13,6 +13,13 @@ export function parseLooseDate(value: string | null | undefined, utcOffset = "+0
   if (!value) return null;
   const v = value.trim();
   if (!v) return null;
+  // A calendar day has no wall-clock time: use an explicit zone, never the host timezone.
+  const isoDay = /^(\d{4})[-/](\d{2})[-/](\d{2})$/.exec(v);
+  if (isoDay) return new Date(`${isoDay[1]}-${isoDay[2]}-${isoDay[3]}T00:00:00Z`);
+  if (/^[A-Za-z]+ \d{1,2},? \d{4}$/.test(v)) {
+    const day = new Date(`${v} UTC`);
+    if (Number.isFinite(day.getTime())) return new Date(`${day.toISOString().slice(0,10)}T00:00:00${utcOffset}`);
+  }
   const direct = Date.parse(v);
   if (Number.isFinite(direct) && /\d{4}/.test(v)) return new Date(direct);
   // 2026-09-26 / 2026/09/26 / 2026年9月26日 (+ optional time), interpreted in the given offset.
@@ -103,7 +110,7 @@ async function fetchListingText(source: SourceRow): Promise<{ text: string; viaJ
     const page = await jinaRead(target, { purpose: "source_listing", subject: `source:${source.id}`, cacheToleranceSeconds: source.config.cacheToleranceSeconds, perRead: true });
     return { text: page.markdown, viaJina: true, base: source.config.baseUrl ?? target };
   }
-  const res = await guardedFetch(url, { headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" }, timeoutMs: 25_000 });
+  const res = await guardedFetch(url, { minIntervalMs: source.config._mnc ? 2000 : undefined, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" }, timeoutMs: 25_000 });
   if (res.status !== 200) throw new FetchError(`HTTP ${res.status}`, res.status);
   return { text: res.text(), viaJina: false, base: source.config.baseUrl ?? url };
 }
@@ -151,7 +158,7 @@ export function fromHtml(html: string, base: string, source: SourceRow): Candida
     if (!url || seen.has(url) || !allowed(url, source)) continue;
     if (!sectionsArePosts && listingItself(url, listing)) continue;
     const titleEl = c.titleSelector ? (el.is(c.titleSelector) ? el : el.find(c.titleSelector).first()) : linkEl;
-    const title = collapseWhitespace(titleEl.text() || linkEl.attr("title") || "");
+    const title = collapseWhitespace((c.titleAttribute ? titleEl.attr(c.titleAttribute) : titleEl.text()) || linkEl.attr("title") || "");
     if (!title) continue;
     let publishedAt: Date | null = null;
     if (c.publishedAtSelector) {
@@ -163,7 +170,7 @@ export function fromHtml(html: string, base: string, source: SourceRow): Candida
       publishedAt = parseLooseDate(m?.[1], c.publishedAtUtcOffset);
     }
     seen.add(url);
-    out.push({ url, title, publishedAt });
+    out.push({ url, title, publishedAt, raw: { publishedAtOriginal: c.publishedAtSelector ? (el.find(c.publishedAtSelector).first().attr("datetime") ?? el.find(c.publishedAtSelector).first().text()) : c.publishedAtRegex ? new RegExp(c.publishedAtRegex).exec($.html(el))?.[1] ?? null : null } });
   }
   return out;
 }
@@ -321,7 +328,7 @@ export async function fetchDetail(url: string, source: SourceRow, need: DetailNe
   let html: string | null = null;
   let body: ExtractedBody | null = null;
   if ((need.date && !dateInJina) || (need.title && !titleInJina) || need.summary) {
-    const res = await guardedFetch(url, { timeoutMs: 20_000 });
+    const res = await guardedFetch(url, { minIntervalMs: source.config._mnc ? 2000 : undefined, timeoutMs: 20_000 });
     if (res.status === 200) {
       html = res.text();
       if (need.body && /html/.test(res.headers.get("content-type") ?? "")) {

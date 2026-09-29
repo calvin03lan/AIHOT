@@ -1,3 +1,4 @@
+import { SITE } from "@aihot/industry/site";
 // Names, dates and grouping for daily, weekly and monthly reports.
 import type { ReportNavigationEntry, ReportKind } from "@aihot/contracts/site";
 import { beijingWeekday } from "../../lib/format";
@@ -35,9 +36,9 @@ export function monthRange(key: string): [string, string] {
 
 /** "这一天的 4 件 AI 大事" / "本周的 12 件 AI 大事" / "8 月的 20 件 AI 大事". */
 export function headline(kind: ReportKind, key: string, count: number): string {
-  if (kind === "daily") return `这一天的 ${count} 件 AI 大事`;
-  if (kind === "weekly") return `本周的 ${count} 件 AI 大事`;
-  return `${Number(key.slice(5, 7))} 月的 ${count} 件 AI 大事`;
+  if (kind === "daily") return `这一天的 ${count} 件${SITE.subject}大事`;
+  if (kind === "weekly") return `本周的 ${count} 件${SITE.subject}大事`;
+  return `${Number(key.slice(5, 7))} 月的 ${count} 件${SITE.subject}大事`;
 }
 
 /** "09.16" for a story inside a week or month. */
@@ -133,12 +134,12 @@ const METRICS: Array<[key: string, unit: string]> = [
   ["totalStories", "件大事"],
   ["sourcesCount", "个来源"],
   ["firstPartyEvents", "件一手发布"],
-  ["modelsReleased", "个新模型"],
+  ["clinicalEvents", "项临床进展"],
   ["selectedCount", "条精选"],
   ["reportsCovered", "期日报"],
 ];
 export function metricItems(metrics: Record<string, number>): Array<{ value: number; unit: string }> {
-  return METRICS.filter(([k]) => typeof metrics[k] === "number" && (k !== "modelsReleased" || metrics[k]! > 0)).map(([k, unit]) => ({ value: metrics[k]!, unit }));
+  return METRICS.filter(([k]) => typeof metrics[k] === "number" && (k !== "clinicalEvents" || metrics[k]! > 0)).map(([k, unit]) => ({ value: metrics[k]!, unit }));
 }
 
 /** "前一日 · 9月25日", "上一期 · 第 37 周", "下一期 · 7 月". */
