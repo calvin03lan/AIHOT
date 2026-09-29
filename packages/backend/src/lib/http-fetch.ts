@@ -37,6 +37,7 @@ function dispatcherFor(viaProxy: boolean): Dispatcher | undefined {
 }
 
 export interface GuardedFetchOptions {
+  minIntervalMs?: number;
   method?: string;
   headers?: Record<string, string>;
   body?: string;
@@ -59,7 +60,16 @@ export interface GuardedResponse {
 /** How the collectors introduce themselves: the site's own crawler name and address (industry/site.ts). */
 export const DEFAULT_UA = `Mozilla/5.0 (compatible; ${SITE.crawlerName}/1.0; +${config.siteUrl}/about)`;
 
+const nextHostRequest = new Map<string, number>();
+
 export async function guardedFetch(input: string, opts: GuardedFetchOptions = {}): Promise<GuardedResponse> {
+  if (opts.minIntervalMs) {
+    const host = new URL(input).hostname;
+    const start = Math.max(Date.now(), nextHostRequest.get(host) ?? 0);
+    nextHostRequest.set(host, start + opts.minIntervalMs);
+    const wait = start - Date.now();
+    if (wait > 0) await new Promise(resolve => setTimeout(resolve, wait));
+  }
   // One budget includes DNS, every redirect and the body. Restarting it at each hop allowed a
   // nominal 20 s image request to occupy the API for minutes.
   const signal = AbortSignal.timeout(opts.timeoutMs ?? 20_000);

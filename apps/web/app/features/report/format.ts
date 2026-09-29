@@ -1,3 +1,4 @@
+import { SITE } from "@aihot/industry/site";
 // Names, dates and grouping for daily, weekly and monthly reports.
 import type { ReportNavigationEntry, ReportKind } from "@aihot/contracts/site";
 import { beijingWeekday } from "../../lib/format";
@@ -35,9 +36,9 @@ export function monthRange(key: string): [string, string] {
 
 /** "这一天的 4 件 AI 大事" / "本周的 12 件 AI 大事" / "8 月的 20 件 AI 大事". */
 export function headline(kind: ReportKind, key: string, count: number): string {
-  if (kind === "daily") return `这一天的 ${count} 件 AI 大事`;
-  if (kind === "weekly") return `本周的 ${count} 件 AI 大事`;
-  return `${Number(key.slice(5, 7))} 月的 ${count} 件 AI 大事`;
+  if (kind === "daily") return `这一天的 ${count} 件${SITE.subject}大事`;
+  if (kind === "weekly") return `本周的 ${count} 件${SITE.subject}大事`;
+  return `${Number(key.slice(5, 7))} 月的 ${count} 件${SITE.subject}大事`;
 }
 
 /** "09.16" for a story inside a week or month. */

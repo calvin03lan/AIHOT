@@ -44,6 +44,9 @@ export async function stub(answer: (hit: number, req: { url: string; body: strin
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
   const { port } = server.address() as { port: number };
+  // Only the isolated test process uses mock model calls; no production keys are loaded.
+  const { config } = await import("@aihot/backend/config");
+  config.modelCallsEnabled = true;
   return { url: `http://127.0.0.1:${port}`, hits: () => hits, close: () => new Promise<void>((resolve) => server.close(() => resolve())) };
 }
 

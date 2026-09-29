@@ -120,10 +120,10 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
   const headers: Record<string, string> = { accept: "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8" };
   if (previous?.etag) headers["if-none-match"] = previous.etag;
   if (previous?.lastModified) headers["if-modified-since"] = previous.lastModified;
-  let res = await guardedFetch(url, { headers, timeoutMs: 25_000 });
+  let res = await guardedFetch(url, { minIntervalMs: source.config._mnc ? 2000 : undefined, headers, timeoutMs: 25_000 });
   // A redirect may have changed destinations, whose ETag namespace is unrelated to the old one.
   if (res.status === 304 && previous && res.url !== previous.responseUrl) {
-    res = await guardedFetch(url, { headers: { accept: headers.accept! }, timeoutMs: 25_000 });
+    res = await guardedFetch(url, { minIntervalMs: source.config._mnc ? 2000 : undefined, headers: { accept: headers.accept! }, timeoutMs: 25_000 });
   }
   const validator: RssValidator = {
     configHash, responseUrl: res.url,
@@ -171,7 +171,7 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
         ...feedText(bodyHtml, description, source),
         media: media.slice(0, 6),
         categories: arr(it.category).map((c) => text(c)).filter(Boolean),
-        raw: { guid: text(it.guid) || null },
+        raw: { guid: text(it.guid) || null, publishedAtOriginal: text(it.pubDate || it["dc:date"] || it.date) || null },
       });
     }
     return { candidates: out, validator, notModified: false };
@@ -197,7 +197,7 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
         ...feedText(bodyHtml, summary, source),
         media: content ? imagesFrom(content, link) : [],
         categories: arr(e.category).map((c: any) => c?.["@term"] ?? text(c)).filter(Boolean),
-        raw: { id: text(e.id) || null },
+        raw: { id: text(e.id) || null, publishedAtOriginal: text(e.published || e.updated) || null },
       });
     }
     return { candidates: out, validator, notModified: false };

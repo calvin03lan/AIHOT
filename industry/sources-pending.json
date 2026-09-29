@@ -1,0 +1,11 @@
+{
+  "sources": [
+    {
+      "name": "invest wallstreet",
+      "kind": "mp_account",
+      "tier": "T2",
+      "status": "待核实公众号 ghid/wxid 与文章样本；不按名称猜账号，不启用付费采集",
+      "policy": "只提取可核查事实，不收研究员评级、目标价与个人判断"
+    }
+  ]
+}
