@@ -134,12 +134,12 @@ const METRICS: Array<[key: string, unit: string]> = [
   ["totalStories", "件大事"],
   ["sourcesCount", "个来源"],
   ["firstPartyEvents", "件一手发布"],
-  ["modelsReleased", "个新模型"],
+  ["clinicalEvents", "项临床进展"],
   ["selectedCount", "条精选"],
   ["reportsCovered", "期日报"],
 ];
 export function metricItems(metrics: Record<string, number>): Array<{ value: number; unit: string }> {
-  return METRICS.filter(([k]) => typeof metrics[k] === "number" && (k !== "modelsReleased" || metrics[k]! > 0)).map(([k, unit]) => ({ value: metrics[k]!, unit }));
+  return METRICS.filter(([k]) => typeof metrics[k] === "number" && (k !== "clinicalEvents" || metrics[k]! > 0)).map(([k, unit]) => ({ value: metrics[k]!, unit }));
 }
 
 /** "前一日 · 9月25日", "上一期 · 第 37 周", "下一期 · 7 月". */
