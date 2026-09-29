@@ -6,6 +6,7 @@ export const KEYS = {
   starred: "aihot-starred-items",
   read: "aihot-read-items",
   theme: "aihot-theme",
+  hotScoreVisible: "aihot-hot-score-visible",
   changelogSeen: "aihot-changelog-seen-version",
   feedbackDraft: "aihot-feedback-draft-v1",
 } as const;
@@ -86,6 +87,7 @@ function subscribeKey(key: string) {
 const subscribeStarred = subscribeKey(KEYS.starred);
 const subscribeRead = subscribeKey(KEYS.read);
 const subscribeTheme = subscribeKey(KEYS.theme);
+const subscribeHotScoreVisible = subscribeKey(KEYS.hotScoreVisible);
 const subscribeChangelog = subscribeKey(KEYS.changelogSeen);
 
 // Snapshot cache so useSyncExternalStore gets stable references between changes.
@@ -188,6 +190,20 @@ export function markRead(id: string) {
   const next = [id, ...ids.filter((v) => v !== id)].slice(0, READ_LIMIT);
   writeRaw(KEYS.read, JSON.stringify(next));
   invalidate(KEYS.read);
+}
+
+// --- feed display preferences ---
+export function getHotScoreVisible(): boolean {
+  return readRaw(KEYS.hotScoreVisible) === "true";
+}
+
+export function setHotScoreVisible(visible: boolean) {
+  writeRaw(KEYS.hotScoreVisible, visible ? "true" : null);
+  invalidate(KEYS.hotScoreVisible);
+}
+
+export function useHotScoreVisible(): boolean {
+  return useSyncExternalStore(subscribeHotScoreVisible, getHotScoreVisible, () => false);
 }
 
 // --- theme ---
