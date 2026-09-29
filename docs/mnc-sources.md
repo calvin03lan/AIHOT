@@ -31,20 +31,20 @@
 | [mnc-roche](https://www.roche.com/med_news_xml.xml) | 10 | 9 | Wed, 23 Sep 2026 05:15:00 GMT | 可解析 |
 | [mnc-novartis](https://www.novartis.com/news) | 12 | 4 | 2026-09-18T16:51:53Z | 可解析 |
 | [mnc-novartis-adhoc](https://www.novartis.com/news) | 12 | 3 | 2026-09-08T07:00:00Z | 可解析 |
-| [mnc-astrazeneca](https://www.astrazeneca.com/media-centre/press-releases.html) | 0 | 0 | — | Error: no items matched (html) |
+| [mnc-astrazeneca](https://www.astrazeneca.com/media-centre.html) | 5 | 5 | 2026-09-28 | 可解析（首页最近 5 条） |
 | [mnc-sanofi](https://www.sanofi.com/en/media-room/press-releases) | 20 | 2 | 2026-09-22 | 可解析 |
 | [mnc-bms](https://news.bms.com/news/default.aspx) | 0 | 0 | — | Error: HTTP 403 / blocked |
 | [mnc-pfizer](https://www.pfizer.com/newsroom/press-releases) | 0 | 0 | — | Error: HTTP 403 / blocked |
 | [mnc-jnj](https://www.jnj.com/rss-feed/all) | 25 | 14 | Fri, 25 Sep 2026 11:41:08 GMT | 可解析 |
 
-9 个逻辑源已解析到至少 5 条；部分公司近 30 天实际发稿少于 5 条，不能补造“近期条目”。RSS 或网页首屏不一定覆盖完整 30 天，当前仅对返回条目执行 30 天窗口过滤，不宣称完整历史回补。
+10 个逻辑源已解析到至少 5 条；部分公司近 30 天实际发稿少于 5 条，不能补造“近期条目”。RSS 或网页首屏不一定覆盖完整 30 天，当前仅对返回条目执行 30 天窗口过滤，不宣称完整历史回补。
 
 - 罗氏：官网 [投资者订阅页](https://www.roche.com/investors/subscribe) 明确提供 `https://www.roche.com/med_news_xml.xml`。优先使用该官方 RSS，保留一手属性。首条为 [2026-09-23 sefaxersen 中期数据](https://www.roche.com/media/releases/med-cor-2026-09-23b)。RHHBY 为美国 OTC ADR，不能统称美股交易所上市。
 - 诺华 ad hoc：只解析 `#tab-ad-hoc-releases .each-item`；已提取 [2026-09-08 HARBOR 更新](https://www.novartis.com/news/media-releases/novartis-provides-update-delpacibart-etedesiran-del-desiran-phase-iii-harbor-study-treatment-myotonic-dystrophy-type-1-dm1)，保留原文日期和临床失败事实。没有使用返回 404 的独立 ad hoc 路径。
 - 强生：官网 [RSS 说明](https://www.jnj.com/rss) 提供 `/rss-feed/all`；RSS 首条与浏览器媒体页的 2026-09-25 TREMFYA 条目相符。普通 GET 媒体页受限不代表 RSS 不可用。
 - 赛诺菲：媒体首页仅有少量卡片，采用实际链接的 `/en/media-room/press-releases`。标题取卡片 `title` 属性，避免误收“Read the Press Release”。路径只用于取得日期，未伪造具体发布时间；原始日期与 UTC 存储值分开保存。
 - 默沙东：解析 `.d8-result-item`，标题和日期来自同一卡片；美国 Merck 与德国 Merck KGaA 分开理解。
-- **阿斯利康未通过自动采集验收**：静态页没有条目，公开 `filternew.data.json` 请求返回 403。保留源配置，空解析将计失败和告警。
+- **阿斯利康已接通媒体首页**：原列表静态页无条目，公开 `filternew.data.json` 返回 403；`/media-centre.html` 可直接抓取最近 5 条，按 `li.dynamic-news-container__item` 提取标题、链接和 `time[datetime]`。最新为 2026-09-28 Summit 战略投资合作；首次新增 5 条、第二次新增 0 条。`/media-centre/archive.html?year=2026` 也可访问，但尚未接入分页回补。首页容量有限，长时间停机可能漏稿。
 - **BMS 未通过自动采集验收**：主页 iframe 实际指向 `news.bms.com`，浏览器 `/news/default.aspx` 可见多条新闻，但程序 GET 返回 403。旧 RSS 地址返回 HTML，未采用。
 - **辉瑞未通过自动采集验收**：浏览器可见 2026-09-28 ESMO 条目，但程序 GET 和 `/newsfeed` 均受限。未把浏览器可见当作自动采集可用。
 - 不破解验证码、不绕过反爬。SEC 兜底尚未启用：需要真实机构/邮箱 User-Agent，且 8-K 不能替代全部官方新闻。通讯社专属 feed 未核实，不混入一手清单。
@@ -61,7 +61,7 @@
 
 ## 尚未满足的验收项
 
-3 个受限源的持续自动抓取、完整 30 天分页回补、所有公司最新条目逐一人工对照尚未全部完成。不能宣称 12/12 接入成功或已开始全天候监控。生产启用前，在部署网络重新检查这些项目；未验收源保持后台显式失败状态。
+BMS、辉瑞 2 个受限源的持续自动抓取、完整 30 天分页回补、所有公司最新条目逐一人工对照尚未全部完成。不能宣称 12/12 接入成功或已开始全天候监控。生产启用前，在部署网络重新检查这些项目；未验收源保持后台显式失败状态。
 
 ## 后续媒体接入
 
@@ -69,7 +69,15 @@
 
 ## 本轮工程验证
 
-- 全新 `pharma_final_test` 数据库：130 项测试通过。
+- 全新 `pharma_step1_test` 数据库：131 项测试通过。
 - 前端 11 项测试通过；生产构建及类型检查通过。
 - 本地首页、全部动态、日报、关于页已检查；完整 smoke 的页面、RSS、API、MCP 均通过。
-- 本地预览 http://localhost:4310；采集原文已入库，模型处理和外部推送关闭，因此公开内容页暂为空。未使用研究目录中的 API 密钥，未执行付费模型调用。
+- 本地预览 http://localhost:4310；经用户明确授权，通过密钥文件指定的公司网关处理公开新闻，模型为网关实际提供的 `deepseek-v4-flash`。常驻模型开关及外部推送仍关闭，真实调用仅由显式批处理命令临时开启。密钥与网关配置仅存忽略的 `.env`，不提交。
+- BMS 新闻/订阅入口、辉瑞新闻室和投资者新闻入口本轮继续返回 403；浏览器控制工具两次初始化失败，未把搜索引擎可见或此前浏览器可见当成持续爬虫已接通。
+- 修复 worker 将正文提取错误地绑定在定时采集开关上的问题：已有文章现在可以在 `COLLECT_ENABLED=false` 时正常提取正文。
+
+## 模型批处理验收（2026-09-29）
+
+原有 64 条加阿斯利康 5 条，共 69 条正文提取成功；59 条完成中文标题、摘要和分类，10 条经预筛过滤，46 条进入精选。通过内容的中文必填字段缺失数为 0，首页和全部动态 HTTP 页面已验证含真实中文结果。过滤样本包括参会预告、赞助宣传及不含业务新事实的健康教育项目；低分但属于行业事实的内容仍在全部动态展示。评分门槛未变，仍待人工标注校准。
+
+初次误用厂商官方地址导致鉴权拒绝，随后核对凭据文件中的网关地址、取得用户确认并查询模型列表，改用实际可用的 `deepseek-v4-flash`。成功分析请求均保存回执；不将网关 token 用量换算为未核实的金额。批处理脚本加入鉴权失败停止、预算等待重排及未完成状态报告。

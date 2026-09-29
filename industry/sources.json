@@ -243,8 +243,8 @@
       "name": "AstraZeneca · 官方新闻",
       "kind": "web_list",
       "config": {
-        "url": "https://www.astrazeneca.com/media-centre/press-releases.html",
-        "itemSelector": "a[href]",
+        "url": "https://www.astrazeneca.com/media-centre.html",
+        "itemSelector": "li.dynamic-news-container__item",
         "allowUrlPrefixes": [
           "https://www.astrazeneca.com/media-centre/press-releases/"
         ],
@@ -257,7 +257,10 @@
           "company": "AstraZeneca",
           "ticker": "AZN",
           "category": "press_release"
-        }
+        },
+        "linkSelector": "a",
+        "titleSelector": ".dynamic-news-container__item-title",
+        "publishedAtSelector": "time"
       },
       "tier": "T1",
       "first_party": true,

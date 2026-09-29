@@ -24,6 +24,14 @@ const url=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
 config.allowPrivateNetworkFetch=true;
 const settings={url,itemSelector:'article',titleSelector:'h3',publishedAtSelector:'time',_mnc:{company:'Novartis',ticker:'NVS',category:'ad_hoc'},_aihot:{fixedIntervalMinutes:15,initialBackfillMonths:1}};
 after(async()=>{await new Promise<void>(resolve=>server.close(()=>resolve()));await stopBoss();await closeDb();});
+test('AstraZeneca media cards retain the title and date without unrelated links',()=>{
+  const seed=seeds.sources.find(s=>s.id==='mnc-astrazeneca')!;
+  const source={...seed,cursor:null,fail_count:0} as SourceRow;
+  const items=fromHtml('<a href="/about">About</a><li class="dynamic-news-container__item"><a href="/media-centre/press-releases/2026/trial.html"><div class="dynamic-news-container__item-title">Phase III trial results</div><time datetime="2026-09-28">28 September 2026</time></a></li>',String(seed.config.url),source);
+  assert.equal(items.length,1);
+  assert.equal(items[0]!.title,'Phase III trial results');
+  assert.equal(items[0]!.publishedAt?.toISOString(),'2026-09-28T00:00:00.000Z');
+});
 test('MNC config is supported; Novartis tabs stay separate and metadata keeps original timezone',()=>{
   for(const s of seeds.sources)assert.deepEqual(unsupportedConfig(s.kind as SourceRow['kind'],s.config),[]);
   const source={...seeds.sources[6],cursor:null,fail_count:0,config:{...settings,itemSelector:'#tab-ad-hoc-releases article'}} as SourceRow;
